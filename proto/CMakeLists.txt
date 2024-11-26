@@ -1,25 +1,26 @@
-find_package(grpc CONFIG REQUIRED)
-find_package(libprotobuf CONFIG REQUIRED)
+find_package(gRPC CONFIG REQUIRED)
+find_package(protobuf CONFIG REQUIRED)
 
 set(PROTO_FILES
-    v1/keyvalue.proto
-    v1/keyvaluestorage.proto
+    kvstore/keyvalue.proto
+    kvstore/keyvaluestorage.proto
 )
 
-add_library(kvstore_proto ${PROTO_FILES})
-target_link_libraries(kvstore_proto
-    PUBLIC
-        grpc::grpc
-        grpc::grpc++
-        protobuf::libprotobuf
+add_library(kvstore ${PROTO_FILES})
+target_link_libraries(
+  kvstore
+  PUBLIC
+    gRPC::grpc
+    gRPC::grpc++
+    protobuf::libprotobuf
 )
-target_include_directories(kvstore_proto PUBLIC ${CMAKE_CURRENT_BINARY_DIR})
+target_include_directories(kvstore PUBLIC ${CMAKE_CURRENT_BINARY_DIR})
 
-get_target_property(grpc_cpp_plugin_location grpc::grpc_cpp_plugin LOCATION)
-protobuf_generate(TARGET kvstore_proto LANGUAGE cpp)
+get_target_property(grpc_cpp_plugin_location gRPC::grpc_cpp_plugin LOCATION)
+protobuf_generate(TARGET kvstore LANGUAGE cpp)
 protobuf_generate(
-  TARGET kvstore_proto 
+  TARGET kvstore
   LANGUAGE grpc 
-  GENERATE_EXTENSIONS .grpc.pb.hpp .grpc.pb.cpp 
+  GENERATE_EXTENSIONS .grpc.pb.h .grpc.pb.cc
   PLUGIN "protoc-gen-grpc=${grpc_cpp_plugin_location}"
 )

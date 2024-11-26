@@ -2,11 +2,11 @@ syntax = "proto3";
 
 package keyvaluestorage;
 
-import "v1/keyvalue.proto"
+import "kvstore/keyvalue.proto";
 
 service KeyValueStorage {
-  rpc Put (Value) returns (Key) {}
-  rpc Get (Key) returns (Value) {}
+  rpc Put (PutRequest) returns (PutResponse) {}
+  rpc Get (GetRequest) returns (GetResponse) {}
 } 
 
 message PutRequest {
