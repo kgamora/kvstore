@@ -1,0 +1,12 @@
+syntax = "proto3";
+
+package keyvaluestorage;
+
+message Key {
+  uint64 key = 1;
+}
+
+message Value {
+  string data = 1;
+}
+
