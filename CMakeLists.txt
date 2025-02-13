@@ -14,6 +14,6 @@ set(CMAKE_CXX_FLAGS "-fclang-abi-compat=17")
 add_subdirectory(contrib)
 
 add_subdirectory(proto)
-add_subdirectory(client) # TODO: later
+add_subdirectory(client)
 add_subdirectory(server)
 
