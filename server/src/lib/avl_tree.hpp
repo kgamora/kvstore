@@ -21,9 +21,9 @@ public:
   using TNodePtr = std::shared_ptr<AVLNode>;
 
 public:
-  using TKey = const K;
+  using TKey = K;
   using TValue = V;
-  using TKeyPtr = std::unique_ptr<const K>;
+  using TKeyPtr = std::unique_ptr<const TKey>;
   using TValuePtr = std::unique_ptr<V>;
 
 private:
@@ -50,7 +50,6 @@ public:
         left, right, height);
   }
 
-  THeight height;
   TNodePtr root;
   Cmp cmp_;
 
@@ -66,6 +65,7 @@ public:
     iterator(const std::stack<TNodePtr *> &stack) : stack_(stack) {}
 
     value_type &operator*() const { return (*stack_.top())->data; }
+    value_type *operator->() const { return &(*stack_.top())->data; }
 
     bool operator==(const iterator &) const = default;
 
@@ -100,19 +100,15 @@ public:
     friend AVLTree;
   };
 
-  explicit AVLTree(THeight height) : height(height) {}
+  AVLTree() = default;
   ~AVLTree() = default;
 
 #ifdef TEST_BUILD
-  explicit AVLTree(TNodePtr root) : root(root) {
-    if (root) {
-      height = root->height;
-    }
-  }
+  explicit AVLTree(TNodePtr root) : root(root) {}
 #endif // TEST_BUILD
 
   // Modification
-  std::pair<iterator, bool> insert(TKey &key, const TValue &value) {
+  std::pair<iterator, bool> insert(const TKey &key, const TValue &value) {
     TNodePtr newNode = makeNode(key, value);
 
     std::stack<TNodePtr *> stack;
@@ -152,7 +148,35 @@ public:
   }
 
   //// Iterators
-  // iterator find(const K &key);
+  iterator find(const TKey &key) {
+    auto *currentNodePtr = &root;
+    std::stack<TNodePtr *> stack;
+    while (*currentNodePtr) {
+      stack.push(currentNodePtr);
+      auto &currentNode = *currentNodePtr;
+      auto &currentKey = *currentNode->data.key;
+      if (equal_(currentKey, key)) {
+        return {stack};
+      }
+      currentNodePtr =
+          less_(key, currentKey) ? &currentNode->left : &currentNode->right;
+    }
+    return {};
+  }
+
+  const iterator find(const TKey &key) const { return find(key); }
+
+  std::pair<iterator, bool> insert_or_assign(const TKey &key,
+                                             const TValue &value) {
+    auto present = find(key);
+    if (present == end()) {
+      return insert(key, value);
+    }
+    auto &[k, valuePtr] = *present;
+    *valuePtr = value;
+    return {present, false};
+  }
+
   iterator begin() {
     if (!root) {
       return {};
@@ -242,11 +266,13 @@ private:
   }
 
   // Comparisons
-  inline bool equal_(TKey &lhs, TKey &rhs) const {
+  inline bool equal_(const TKey &lhs, const TKey &rhs) const {
     return !cmp_(lhs, rhs) && !cmp_(rhs, lhs);
   }
 
-  inline bool less_(TKey &lhs, TKey &rhs) const { return cmp_(lhs, rhs); }
+  inline bool less_(const TKey &lhs, const TKey &rhs) const {
+    return cmp_(lhs, rhs);
+  }
 
   // Node utils
 

@@ -1,4 +1,6 @@
 #include "kvstore/keyvaluestorage.pb.h"
+#include "lib/avl_tree.hpp"
+
 #include <cstdint>
 #include <grpcpp/support/status.h>
 #include <kvstore/keyvalue.pb.h>
@@ -8,7 +10,6 @@
 #include <grpcpp/server_builder.h>
 
 #include <string>
-#include <unordered_map>
 
 namespace keyvaluestorage {
 
@@ -33,7 +34,7 @@ class KeyValueStorageService final : public KeyValueStorage::Service {
     bool present = it != storage.end();
 
     if (present) {
-      response->mutable_value()->set_data(it->second);
+      response->mutable_value()->set_data(*it->value);
     }
 
     response->set_present(present);
@@ -43,12 +44,14 @@ class KeyValueStorageService final : public KeyValueStorage::Service {
 
 private:
   std::uint64_t counter;
-  std::unordered_map<std::uint64_t, std::string> storage;
+  core::AVLTree<std::uint64_t, std::string> storage;
 };
 
 } // namespace keyvaluestorage
 
 int main() {
+  absl::InitializeLog();
+
   grpc::ServerBuilder builder;
   builder.AddListeningPort("0.0.0.0:50051", grpc::InsecureServerCredentials());
 

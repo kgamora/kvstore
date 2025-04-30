@@ -213,8 +213,8 @@ TEST_F(AVLTreeTest, TestIteratorTraverse) {
   EXPECT_EQ(it, tree.end());
 }
 
-TEST_F(AVLTreeTest, TestInsert) {
-  TTree tree(3);
+TEST_F(AVLTreeTest, TestInsertIterate) {
+  TTree tree;
   tree.insert('b', {});
   tree.insert('d', {});
   tree.insert('a', {});
@@ -222,15 +222,43 @@ TEST_F(AVLTreeTest, TestInsert) {
   tree.insert('c', {});
   tree.insert('f', {});
   tree.insert('g', {});
-  std::vector<char> keys {'a', 'b', 'c', 'd', 'e', 'f', 'g'};
+  std::vector<char> keys{'a', 'b', 'c', 'd', 'e', 'f', 'g'};
   auto keyIt = keys.begin();
   for (auto it = tree.begin(); it != tree.end(); it++) {
     EXPECT_NE(keyIt, keys.end());
-    const auto& [keyPtr, valPtr] = *it;
+    const auto &[keyPtr, valPtr] = *it;
     EXPECT_EQ(*keyIt, *keyPtr);
     keyIt++;
   }
   EXPECT_TRUE(tree.root->height <= 3);
+}
+
+TEST_F(AVLTreeTest, TestInsertFind) {
+  TTree tree;
+  auto expectNotFound = [&](const TTree::TKey &key) {
+    auto it = tree.find(key);
+    EXPECT_EQ(it, tree.end());
+  };
+  auto expectFound = [&](const TTree::TKey &key) {
+    auto it = tree.find(key);
+    EXPECT_NE(it, tree.end());
+    EXPECT_EQ(key, *(*it).key);
+  };
+  std::vector<TTree::TKey> keys{'I', 'N', 'S', 'E', 'R',
+                                'T', 'f', 'i', 'n', 'd'};
+  for (const auto &key : keys) {
+    expectNotFound(key);
+    {
+      auto [it, inserted] = tree.insert(key, {});
+      EXPECT_TRUE(inserted);
+    }
+    expectFound(key);
+  }
+  std::vector<TTree::TKey> notInsertedKeys{'!', 'z', ';', '4', 'a',
+                                           'A', 'V', '/', 's', 'b'};
+  for (const auto &key : notInsertedKeys) {
+    expectNotFound(key);
+  }
 }
 } // namespace keyvaluestorage::core::tests
 
