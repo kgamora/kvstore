@@ -50,8 +50,6 @@ private:
 } // namespace keyvaluestorage
 
 int main() {
-  absl::InitializeLog();
-
   grpc::ServerBuilder builder;
   builder.AddListeningPort("0.0.0.0:50051", grpc::InsecureServerCredentials());
 
