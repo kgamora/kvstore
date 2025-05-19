@@ -2,7 +2,6 @@
 
 #include "common.hpp"
 #include "log_service.hpp"
-#include <algorithm>
 #include <memory>
 #include <optional>
 
@@ -18,6 +17,10 @@ class TKeyValueStorageService final : public IKeyValueStorageService {
   TLogServicePtr LogService;
 
   TKey PutImpl(std::optional<TKey> key, TValuePtr value) {
+    if (Memtable->IsFull()) {
+      LogService->Dump(std::move(Memtable));
+      Memtable = MakeMemtable();
+    }
     // TODO: move?
     if (!key) {
       key = ++MaxCurrentKey;
@@ -51,7 +54,8 @@ public:
 
 } // namespace
 
-TKeyValueStorageServicePtr CreateKeyValueStorageService() {
+auto CreateKeyValueStorageService(TKeyValueStorageServiceConfigPtr config)
+    -> TKeyValueStorageServicePtr {
   return std::make_unique<TKeyValueStorageService>();
 }
 

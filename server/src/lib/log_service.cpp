@@ -19,7 +19,7 @@ public:
     return {};
   };
 
-  void Dump(const TMemtable &memtable) const override {
+  void Dump(TMemtablePtr memtable) const override {
     LogManager->Dump(memtable);
   };
 };

@@ -8,7 +8,7 @@ namespace keyvaluestorage::core::log {
 class ILogService {
 public:
   virtual TValuePtr Get(const TKey &) const = 0;
-  virtual void Dump(const TMemtable &) const = 0;
+  virtual void Dump(TMemtablePtr) const = 0;
 };
 
 using TLogServicePtr = std::unique_ptr<const ILogService>;
