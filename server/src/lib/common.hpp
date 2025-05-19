@@ -10,4 +10,5 @@ using TValue = std::string;
 using TValuePtr = std::unique_ptr<TValue>;
 using TPath = std::string;
 using TMemtable = core::AVLTree<TKey, TValue>;
+using TKeyValueStorageConfigPtr = std::unique_ptr<keyvaluestorage::TKeyValueStorageConfig>;
 } // namespace keyvaluestorage

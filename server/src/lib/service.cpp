@@ -2,15 +2,20 @@
 
 #include "common.hpp"
 #include "log_service.hpp"
+#include <algorithm>
+#include <memory>
 #include <optional>
 
 namespace keyvaluestorage {
 
-class TKeyValueStorageService final : IKeyValueStorageService {
-private:
+namespace {
+
+using namespace core::log;
+
+class TKeyValueStorageService final : public IKeyValueStorageService {
   TKey MaxCurrentKey;
   TMemtable Memtable;
-  core::log::TLogServicePtr LogService;
+  TLogServicePtr LogService;
 
   TKey PutImpl(std::optional<TKey> key, TValuePtr value) {
     // TODO: move?
@@ -22,6 +27,11 @@ private:
   }
 
 public:
+  TKeyValueStorageService(TLogServicePtr logService, TMemtable memtable,
+                          TKey maxCurrentKey)
+      : LogService(std::move(logService)), Memtable(std::move(memtable)),
+        MaxCurrentKey(maxCurrentKey) {};
+
   void Put(TKey key, TValuePtr value) override {
     PutImpl(std::make_optional(key), std::move(value));
   };
@@ -38,4 +48,11 @@ public:
     return LogService->Get(key);
   };
 };
+
+} // namespace
+
+TKeyValueStorageServicePtr CreateKeyValueStorageService() {
+  return std::make_unique<TKeyValueStorageService>();
+}
+
 } // namespace keyvaluestorage

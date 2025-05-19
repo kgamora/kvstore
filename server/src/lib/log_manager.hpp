@@ -19,4 +19,8 @@ public:
 
 using TLogManagerPtr = std::unique_ptr<const ILogManager>;
 
+struct TLogManagerConfig {};
+
+using TLogManagerConfigPtr = std::unique_ptr<const TLogManagerConfig>;
+
 } // namespace keyvaluestorage::core::log

@@ -13,4 +13,9 @@ public:
 
 using TLogServicePtr = std::unique_ptr<const ILogService>;
 
+struct TLogServiceConfig {};
+
+using TLogServiceConfigPtr = std::unique_ptr<const TLogServiceConfig>;
+
+TLogServicePtr CreateLogService(TLogServiceConfigPtr config);
 } // namespace keyvaluestorage::core::log

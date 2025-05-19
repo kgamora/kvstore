@@ -15,4 +15,12 @@ public:
 
 using TKeyValueStorageServicePtr = std::unique_ptr<IKeyValueStorageService>;
 
+struct TKeyValueStorageServiceConfig {};
+
+using TKeyValueStorageServiceConfigPtr =
+    std::unique_ptr<const TKeyValueStorageServiceConfig>;
+
+auto CreateKeyValueStorageService(TKeyValueStorageServiceConfigPtr config)
+    -> TKeyValueStorageServicePtr;
+
 } // namespace keyvaluestorage
