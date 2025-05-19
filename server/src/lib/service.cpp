@@ -9,10 +9,14 @@ namespace keyvaluestorage {
 class TKeyValueStorageService final : IKeyValueStorageService {
 private:
   TKey MaxCurrentKey;
-  TMemtable Memtable;
+  TMemtablePtr Memtable;
   core::log::TLogServicePtr LogService;
 
   TKey PutImpl(std::optional<TKey> key, TValuePtr value) {
+    if (Memtable->IsFull()) {
+      LogService->Dump(std::move(Memtable));
+      Memtable = MakeMemtable();
+    }
     // TODO: move?
     if (!key) {
       key = ++MaxCurrentKey;
