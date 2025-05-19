@@ -10,7 +10,7 @@ namespace keyvaluestorage::core::log {
 class ILogManager {
 public:
   // Dumps memtable into a new log entry
-  virtual void Dump(const TMemtablePtr &) const = 0;
+  virtual void Dump(TMemtablePtr) = 0;
   // Returns all logs
   virtual std::vector<TLogPtr> GetLogs() const = 0;
   // Merges two logs into a new log entry
@@ -19,8 +19,12 @@ public:
 
 using TLogManagerPtr = std::unique_ptr<const ILogManager>;
 
-struct TLogManagerConfig {};
+struct TLogManagerConfig {
+  TPath LogFilesPath;
+};
 
 using TLogManagerConfigPtr = std::unique_ptr<const TLogManagerConfig>;
+
+TLogManagerPtr CreateLogManager(TLogManagerConfigPtr);
 
 } // namespace keyvaluestorage::core::log

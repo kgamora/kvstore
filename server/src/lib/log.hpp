@@ -1,6 +1,7 @@
 #pragma once
 
 #include "common.hpp"
+#include "memtable.hpp"
 
 #include <cstdint>
 #include <memory>
@@ -25,18 +26,23 @@ public:
 using TLogPtr = std::unique_ptr<const ILog>;
 
 class ILogWriter {
+public:
   virtual void DumpLog() const = 0;
-}
+};
 
 class ILogReader {
+public:
   virtual std::vector<TKey> ReadKeys() const = 0;
   virtual TValuePtr ReadValue(size_t i) const = 0;
-}
+};
 
 using TLogWriterPtr = std::unique_ptr<const ILogWriter>;
 using TLogReaderPtr = std::unique_ptr<const ILogReader>;
 
-TLogWriterPtr CreateLogWriter(std::string keysFilePath, std::string valuesFilePath, const TMemtablePtr & memtable);
-TLogWriterPtr CreateLogReader(std::string keysFilePath, std::string valuesFilePath);
+TLogWriterPtr CreateLogWriter(std::string keysFilePath,
+                              std::string valuesFilePath,
+                              TMemtablePtr memtable);
+TLogReaderPtr CreateLogReader(std::string keysFilePath,
+                              std::string valuesFilePath);
 
 } // namespace keyvaluestorage::core::log

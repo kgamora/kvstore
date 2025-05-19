@@ -1,6 +1,7 @@
 #pragma once
 
 #include "common.hpp"
+#include "memtable.hpp"
 #include <memory>
 
 namespace keyvaluestorage::core::log {

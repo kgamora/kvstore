@@ -1,43 +1,57 @@
 #include "log_manager.hpp"
 
+#include "common.hpp"
 #include "log.hpp"
 
-#include <format>
+#include <cstdio>
+#include <memory>
+#include <string>
 
 namespace keyvaluestorage::core::log {
 
 namespace {
 
 class TLogManager final : public ILogManager {
-  const std::string LogFilesPath;
+  std::string LogFilesPath;
   TVersion CurrentVersion;
+
 public:
+  TLogManager(TPath logFilesPath, TVersion startVersion)
+      : LogFilesPath(logFilesPath), CurrentVersion(startVersion) {}
+
   // Dumps memtable into a new log entry
-  void Dump(const TMemtablePtr & memtable) const override {
+  void Dump(TMemtablePtr memtable) override {
     CurrentVersion++;
-    DumpMemtable(memtable);
+    DumpMemtable(std::move(memtable));
   };
 
   // Returns all logs
   std::vector<TLogPtr> GetLogs() const override {
-    return {};
+
   };
 
   // Merges two logs into a new log entry
-  void Merge(TVersion, TVersion) const override {
+  void Merge(TVersion, TVersion) const override{
 
   };
 
 private:
-
-  void DumpMemtable(const TMemtablePtr & memtable) {
-    auto keysFilePath = std::format("{}/{}.{}", LogFilesPath, CurrentVersion, "keys");
-    auto valuesFilePath = std::format("{}/{}.{}", LogFilesPath, CurrentVersion, "values");
-    auto writer = CreateLogWriter(keysFilePath, valuesFilePath, memtable);
-    writer.DumpLog();
+  void DumpMemtable(TMemtablePtr memtable) {
+    auto keysFilePath =
+        LogFilesPath + '/' + std::to_string(CurrentVersion) + ".keys";
+    auto valuesFilePath =
+        LogFilesPath + '/' + std::to_string(CurrentVersion) + ".values";
+    auto writer =
+        CreateLogWriter(keysFilePath, valuesFilePath, std::move(memtable));
+    writer->DumpLog();
   }
 };
 
+} // namespace
+
+TLogManagerPtr CreateLogManager(TLogManagerConfigPtr config,
+                                TVersion startVersion = 0UL) {
+  return std::make_unique<TLogManager>(config->LogFilesPath, startVersion);
 }
 
 } // namespace keyvaluestorage::core::log
